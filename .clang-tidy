@@ -1,0 +1,10 @@
+Checks: >
+  clang-diagnostic-*
+  readability-*
+  modernize-*
+  performance-*
+  bugprone-*
+  misc-*
+  -fuchsia-*
+WarningsAsErrors: ''
+FormatStyle: none

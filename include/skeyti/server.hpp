@@ -1,4 +1,7 @@
-namespace skeyti::server {
-  class Server;
-  Server* NewServer(String address);
-}
+#include <string>
+
+namespace skeyti {
+class Router;
+class Server;
+Server* NewServer(std::string address);
+}  // namespace skeyti
