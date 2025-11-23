@@ -11,7 +11,8 @@ namespace skeyti::net {
 
 class TcpServer {
 public:
-  TcpServer(std::string host, int port) : _host(std::move(host)), _port(htons(port)), _server_fd(-1) {
+  TcpServer(std::string host, int port) : _host(std::move(host)), _real_port(port), _server_fd(-1) {
+    set_port();
     create_socket(_host, true);
     bind_host();
   }
@@ -40,6 +41,7 @@ public:
 
 private:
   std::string _host;
+  int _real_port;
   uint16_t _port;
   int _server_fd;
 
@@ -48,6 +50,13 @@ private:
                       Invalid,
   };
 
+  int set_port() {
+    if (_real_port < 0 || _real_port > 65535) {
+      throw exceptions::net::NetworkException("Port number " + std::to_string(_real_port) + " exceeds the range 0-65535");
+    }
+    _port = htons(_real_port);
+    return 0;
+  }
   IpKind get_ip_type(const std::string &ip) {
     in_addr ipv4;
     in6_addr ipv6;
@@ -122,10 +131,10 @@ private:
           message = "Access denied";
           break;
         case EADDRINUSE:
-          message = "Address " + _host + " already in use";
+          message = "Address " + _host + ":" + std::to_string(_real_port) + " already in use";
           break;
         case EADDRNOTAVAIL:
-          message = "Address " + _host + " is something that doesn't even exist";
+          message = "Address " + _host + ":" + std::to_string(_real_port) + " is something that doesn't even exist";
           break;
         default:
           throw exceptions::UnknownException(errno);
@@ -147,10 +156,10 @@ private:
           message = "Access denied";
           break;
         case EADDRINUSE:
-          message = "Address " + _host + " already in use";
+          message = "Address " + _host + std::to_string(_port) + " already in use";
           break;
         case EADDRNOTAVAIL:
-          message = "Address " + _host + " is something that doesn't even exist";
+          message = "Address " + _host + std::to_string(_port) + " is something that doesn't even exist";
           break;
         default:
           throw exceptions::UnknownException(errno);
